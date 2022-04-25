@@ -1,14 +1,23 @@
 <template>
   <main class="container m-1">
-    <div class="calendar-header">2022년 5월</div>
+    <div class="calendar-header">
+      <a href="#" @click="onClickPrevYear()">◀◀</a>
+      <a class="ms-5" href="#" @click="onClickPrevMonth()">◀</a>
+      <span class="ms-5 me-5">
+        {{ currentYear }}년 {{ currentMonth + 1 }}월
+      </span>
+      <a class="me-5" href="#" @click="onClickNextMonth()">▶</a>
+      <a href="#" @click="onClickNextYear()">▶▶</a>
+    </div>
+
     <table class="table">
-      <thead class="table-primary">
+      <thead class="">
         <th v-for="day in days" :key="day">{{ day }}</th>
       </thead>
-      <tbody class="table-bordered">
-        <tr v-for="week in totalWeek" :key="week">
-          <td v-for="date in totalDate" :key="date">
-            <span>{{ date }}</span>
+      <tbody class="">
+        <tr v-for="weekDates in monthDates" :key="weekDates">
+          <td v-for="date in weekDates" :key="date">
+            <span v-if="date !== 0">{{ date }}</span>
           </td>
         </tr>
       </tbody>
@@ -17,42 +26,109 @@
 </template>
 
 <script>
+import { ref } from "vue";
+
 export default {
   setup() {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
-    const months = [
-      "1월",
-      "2월",
-      "3월",
-      "4월",
-      "5월",
-      "6월",
-      "7월",
-      "8월",
-      "9월",
-      "10월",
-      "11월",
-      "12월",
-    ];
 
-    // 나중에 동적으로 적용
-    const currentYear = 2022;
-    const currentMonth = 3; // 4월, 1월은 0부터 시작
+    const currentYear = ref(2022);
+    const currentMonth = ref(3); // 4월, 1월은 0부터 시작
     const currentDate = 22; // 0은 마지막 날짜, 1은 1일
+    const monthDates = ref([]);
 
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 요일
-    const lastDay = new Date(currentYear, currentMonth, 0).getDay(); // 요일
+    // 그 달의 처음 요일, computed로 바꿔야 할듯?
+    const firstDay = new Date(
+      currentYear.value,
+      currentMonth.value,
+      1
+    ).getDay();
 
-    const totalDate = new Date(currentYear, currentMonth, 0).getDate();
-    const totalWeek = Math.ceil((firstDay + totalDate) / 7);
+    // 그 달의 총 일수
+    const totalDate = new Date(
+      currentYear.value,
+      currentMonth.value + 1,
+      0
+    ).getDate();
 
-    // const
+    const makeDates = () => {
+      const array = [];
+      let day = firstDay;
+      let date = 1;
+      while (date <= totalDate) {
+        let weekDates = [];
+        while (day <= 6 && date <= totalDate) {
+          weekDates.push(date);
+          date++;
+          day++;
+        }
+        day = 0;
+        array.push(weekDates);
+      }
+      return array;
+    };
+
+    const padDates = (monthDates) => {
+      let firstWeek = monthDates[0];
+      let lastWeek = monthDates[monthDates.length - 1];
+
+      while (firstWeek.length !== 7) {
+        firstWeek.unshift(0);
+      }
+
+      while (lastWeek.length !== 7) {
+        lastWeek.push(0);
+      }
+
+      return monthDates;
+    };
+
+    const init = () => {
+      monthDates.value = padDates(makeDates());
+      console.log(monthDates.value);
+    };
+
+    init();
+
+    const onClickPrevYear = () => {
+      currentYear.value -= 1;
+      init();
+    };
+
+    const onClickNextYear = () => {
+      currentYear.value += 1;
+      init();
+    };
+
+    const onClickPrevMonth = () => {
+      if (currentMonth.value <= 0) {
+        currentMonth.value = 11;
+        currentYear.value -= 1;
+      } else {
+        currentMonth.value -= 1;
+      }
+      init();
+    };
+
+    const onClickNextMonth = () => {
+      if (currentMonth.value >= 11) {
+        currentMonth.value = 0;
+        currentYear.value += 1;
+      } else {
+        currentMonth.value += 1;
+      }
+      init();
+    };
 
     return {
       days,
-      firstDay,
-      totalDate,
-      totalWeek,
+      currentYear,
+      currentMonth,
+      monthDates,
+      onClickPrevYear,
+      onClickNextYear,
+      onClickPrevMonth,
+      onClickNextMonth,
     };
   },
 };

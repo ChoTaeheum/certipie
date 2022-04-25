@@ -71,7 +71,7 @@ export default {
       return Math.ceil(totalPost.value / postLimit);
     });
 
-    // 게시글 가져오기 (즉시실행함수)
+    // 게시글 가져오기
     const getpostList = (page = currentPage.value) => {
       currentPage.value = page;
       axios
