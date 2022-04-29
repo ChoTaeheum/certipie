@@ -49,6 +49,7 @@ export default {
     FilterModal,
     MainCalendar,
   },
+
   setup() {
     const filterToggle = ref(false);
     const date = ref(null);

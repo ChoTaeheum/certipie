@@ -3,7 +3,7 @@
     <div class="calendar-header">
       <a href="#" @click="onClickPrevYear()">◀◀</a>
       <a class="ms-5" href="#" @click="onClickPrevMonth()">◀</a>
-      <span class="ms-5 me-5">
+      <span id="" class="ms-5 me-5">
         {{ currentYear }}년 {{ currentMonth + 1 }}월
       </span>
       <a class="me-5" href="#" @click="onClickNextMonth()">▶</a>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 export default {
   setup() {
@@ -38,11 +38,11 @@ export default {
     const monthDates = ref([]);
 
     // 그 달의 처음 요일, computed로 바꿔야 할듯?
-    const firstDay = new Date(
-      currentYear.value,
-      currentMonth.value,
-      1
-    ).getDay();
+    const firstDay = computed(() => {
+      let fd = 0;
+      fd = new Date(currentYear.value, currentMonth.value, 1).getDay();
+      return fd;
+    });
 
     // 그 달의 총 일수
     const totalDate = new Date(
@@ -53,7 +53,7 @@ export default {
 
     const makeDates = () => {
       const array = [];
-      let day = firstDay;
+      let day = firstDay.value;
       let date = 1;
       while (date <= totalDate) {
         let weekDates = [];
@@ -86,6 +86,7 @@ export default {
     const init = () => {
       monthDates.value = padDates(makeDates());
       console.log(monthDates.value);
+      console.log(firstDay.value);
     };
 
     init();
@@ -144,5 +145,10 @@ export default {
 
 td {
   line-height: 60px;
+}
+
+a {
+  color: wheat;
+  text-decoration: none;
 }
 </style>
